@@ -21,7 +21,7 @@ func tempFile() *os.File {
 	return f
 }
 
-func getFile(url string) string {
+func getFile(url string, opt Opt) string {
 	f := tempFile()
 	defer f.Close()
 
@@ -31,6 +31,16 @@ func getFile(url string) string {
 		exit(err)
 	}
 	defer res.Body.Close()
+
+	if opt.header {
+		for key, values := range res.Header {
+			fmt.Printf("%s: ", key)
+			for _, value := range values {
+				fmt.Printf("%s ", value)
+			}
+			fmt.Println()
+		}
+	}
 
 	if res.StatusCode == 404 {
 		warn("request returned 404")

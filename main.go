@@ -7,6 +7,11 @@ import (
 	"path"
 )
 
+type Opt struct {
+	out    string
+	header bool
+}
+
 func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s [options...] [url...]\n", os.Args[0])
@@ -16,7 +21,9 @@ func main() {
 		flag.PrintDefaults()
 	}
 
-	out := flag.String("o", "", "(optional) name of the output file")
+	var opt Opt
+	flag.StringVar(&opt.out, "o", "", "(optional) name of the output file")
+	flag.BoolVar(&opt.header, "h", false, "(optional) print the response headers")
 	flag.Parse()
 
 	if flag.NArg() == 0 {
@@ -25,13 +32,13 @@ func main() {
 	}
 
 	if len(flag.Args()) > 1 {
-		if *out != "" {
+		if opt.out != "" {
 			warn("ignoring the -o flag because multiple URLs have been specified")
 		}
 
 		for _, url := range flag.Args() {
 			fmt.Println(url)
-			f := getFile(url)
+			f := getFile(url, opt)
 
 			if err := os.Rename(f, path.Base(url)); err != nil {
 				panic(err)
@@ -39,12 +46,12 @@ func main() {
 		}
 	} else {
 		url := flag.Arg(0)
-		f := getFile(url)
+		f := getFile(url, opt)
 
-		if *out == "" {
-			*out = path.Base(url) // get the filename from the url
+		if opt.out == "" {
+			opt.out = path.Base(url) // get the filename from the url
 		}
-		if err := os.Rename(f, *out); err != nil {
+		if err := os.Rename(f, opt.out); err != nil {
 			panic(err)
 		}
 	}
