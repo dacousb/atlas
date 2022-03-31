@@ -12,6 +12,10 @@ const (
 	green  = "\033[32m"
 )
 
+func log(msg string) {
+	fmt.Fprintf(os.Stdout, "%s: %s\n", green+"LOG"+reset, msg)
+}
+
 func warn(msg string) {
 	fmt.Fprintf(os.Stderr, "%s: %s\n", yellow+"WARN"+reset, msg)
 }
